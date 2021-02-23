@@ -364,6 +364,12 @@ PlatformRegisterBootOption (
            );
   ASSERT_EFI_ERROR (Status);
 
+  //
+  // Connect all devices, and regenerate all boot options
+  //
+  EfiBootManagerConnectAll ();
+  EfiBootManagerRefreshAllBootOption ();
+
   BootOptions = EfiBootManagerGetLoadOptions (&BootOptionCount, LoadOptionTypeBoot);
 
   OptionIndex = EfiBootManagerFindLoadOption (&NewOption, BootOptions, BootOptionCount);
@@ -729,11 +735,10 @@ PlatformBootManagerUnableToBoot (
   // the system so the new boot options will be taken into account
   // while executing the ordinary BDS bootflow sequence.
   //
-  if (NewBootOptionCount != OldBootOptionCount) {
-    DEBUG ((DEBUG_WARN, "%a: rebooting after refreshing all boot options\n",
-      __FUNCTION__));
-    gRT->ResetSystem (EfiResetCold, EFI_SUCCESS, 0, NULL);
-  }
+
+  DEBUG ((DEBUG_WARN, "%a: rebooting failed boot\n",
+    __FUNCTION__));
+  gRT->ResetSystem (EfiResetCold, EFI_SUCCESS, 0, NULL);
 
   //
   // BootManagerMenu doesn't contain the correct information when return status
